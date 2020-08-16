@@ -58,3 +58,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+Transport Quest/.vscode/settings.json
+Transport Quest/Library
+Transport Quest/Logs
+Transport Quest/Packages
