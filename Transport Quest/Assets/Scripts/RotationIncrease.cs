@@ -19,6 +19,7 @@ public class RotationIncrease : MonoBehaviour {
         EulerRotation ();
     }
 
+    // 回転させる
     private void EulerRotation () {
         // 現在のQuaternionをオイラー角に変換
         rotatorEuler = rotatorQuaternion.eulerAngles;
@@ -30,6 +31,7 @@ public class RotationIncrease : MonoBehaviour {
         this.transform.localRotation = rotatorQuaternion;
     }
 
+    // 判定を受けて速度調整
     public void SpeedAdjust (float speedDelta) {
 
         if (speedDelta <= 0) { // batの場合
@@ -38,22 +40,23 @@ public class RotationIncrease : MonoBehaviour {
             speedFactor += speedDelta;
         }
 
-        if (speedFactor <= 0.5f) {
+        if (speedFactor <= 0.5f) {  // スピードの下限
             speedFactor = 0.5f;
-        } else if (speedFactor >= 20f) {
+        } else if (speedFactor >= 20f) {  // スピードの上限
             speedFactor = 20f;
         }
     }
 
+    // badだった時に一瞬止める
     public IEnumerator TemporarySlowdown (float speedDelta) {
         float tempSpeedFactor = speedFactor;
         Debug.Log ("factor:" + tempSpeedFactor);
-        speedFactor = 0.3f;
+        speedFactor = speedFactor * 0.1f;
 
         yield return new WaitForSeconds (0.01f);
 
         speedFactor = tempSpeedFactor + speedDelta;
-        if (speedFactor <= 0.5f) {
+        if (speedFactor <= 0.5f) {  // スピードの下限
             speedFactor = 0.5f;
         }
         Debug.Log ("aftor: " + speedFactor);

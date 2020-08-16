@@ -124,6 +124,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   needleMark: {fileID: 1278390406}
   chekerMark: {fileID: 1448936449}
+  speedMater: {fileID: 2002846176}
+  evaluatoinObj:
+  - {fileID: 7261859194138789447, guid: 455d749786c03496a82cf0b57437b682, type: 3}
+  - {fileID: 7526131441391599631, guid: 98b136c26baa8496eb8803910084f977, type: 3}
+  - {fileID: 8659032889420179372, guid: 9083d31ce291e40c6a501174fce6128d, type: 3}
+  evalParent: {fileID: 0}
 --- !u!1 &1448936448
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,7 +308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3177dd5b22f0d444aa52f5e4a5711c2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  speed: 0.8
+  speedFactor: 1
 --- !u!1001 &5805642641404335913
 PrefabInstance:
   m_ObjectHideFlags: 0
