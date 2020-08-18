@@ -12,13 +12,13 @@ public class StageControler : MonoBehaviour {
     void Start () {
         pos = Vector3.zero;
         rigidbody = GetComponent<Rigidbody> ();
-        StageMove ();
+        //StageMove ();
     }
 
     // Update is called once per frame
-    // void FixedUpdate () {
-
-    // }
+    void FixedUpdate () {
+        StageMove ();
+    }
 
     // ステージを動かす
     private void StageMove () {

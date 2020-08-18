@@ -6,6 +6,7 @@ public class CannonSelector : MonoBehaviour {
 
     [SerializeField] private List<Transform> selectList; // レーンのリスト
     [SerializeField] private Transform cannonTranseform; // 大砲オブジェクト
+    [SerializeField] private GameObject[] bulletPrefabs;
     private int selectNumber;
     private Vector3 updatePos; // Updateで更新される大砲のポジション
 
@@ -29,6 +30,7 @@ public class CannonSelector : MonoBehaviour {
     void Update () {
         LaneSelect ();
         CannonMove ();
+        ShotBullet ();
     }
 
     // 範囲内に入ったらリストに追加する
@@ -86,6 +88,15 @@ public class CannonSelector : MonoBehaviour {
             selectNumber = 0;
         } else if (selectNumber >= selectList.Count) {
             selectNumber = selectList.Count - 1;
+        }
+    }
+
+    // 弾丸を打つ
+    private void ShotBullet () {
+        if (Input.GetKeyDown (KeyCode.Space)) {
+            GameObject newBullet = Instantiate (bulletPrefabs[0], nowSelectRane.position, Quaternion.identity, nowSelectRane.parent);
+            BulletMove bullet = newBullet.GetComponent<BulletMove> ();
+            bullet.SetSpeed (1f);
         }
     }
 }
