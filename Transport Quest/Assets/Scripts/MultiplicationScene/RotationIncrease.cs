@@ -6,8 +6,8 @@ public class RotationIncrease : MonoBehaviour {
 
     private Quaternion rotatorQuaternion;
     private Vector3 rotatorEuler;
-    public float speed = 0.8f; // 角速度
-    public float speedFactor = 1f; // 速度倍率
+    private float speed = 0.8f; // 角速度
+    [HideInInspector] public float speedFactor = 1f; // 速度倍率
 
     // Start is called before the first frame update
     void Start () {
@@ -42,8 +42,8 @@ public class RotationIncrease : MonoBehaviour {
 
         if (speedFactor <= 0.5f) {  // スピードの下限
             speedFactor = 0.5f;
-        } else if (speedFactor >= 20f) {  // スピードの上限
-            speedFactor = 20f;
+        } else if (speedFactor >= 35f) {  // スピードの上限
+            speedFactor = 35f;
         }
     }
 
