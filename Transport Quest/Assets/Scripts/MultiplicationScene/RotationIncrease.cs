@@ -50,7 +50,7 @@ public class RotationIncrease : MonoBehaviour {
     // badだった時に一瞬止める
     public IEnumerator TemporarySlowdown (float speedDelta) {
         float tempSpeedFactor = speedFactor;
-        Debug.Log ("factor:" + tempSpeedFactor);
+        //Debug.Log ("factor:" + tempSpeedFactor);
         speedFactor = speedFactor * 0.1f;
 
         yield return new WaitForSeconds (0.01f);
@@ -59,6 +59,6 @@ public class RotationIncrease : MonoBehaviour {
         if (speedFactor <= 0.5f) {  // スピードの下限
             speedFactor = 0.5f;
         }
-        Debug.Log ("aftor: " + speedFactor);
+        //Debug.Log ("aftor: " + speedFactor);
     }
 }

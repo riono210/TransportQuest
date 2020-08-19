@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class StageControler : MonoBehaviour {
 
-    public float speed = 0.5f; // 移動する速度
+    private float stageSpeed; // ステージ自体の速度
     private Vector3 pos;
     private Rigidbody rigidbody;
 
@@ -22,13 +22,13 @@ public class StageControler : MonoBehaviour {
 
     // ステージを動かす
     private void StageMove () {
-        pos.x = speed;
+        pos.x = stageSpeed;
         //rigidbody.AddForce (pos, ForceMode.VelocityChange);
         rigidbody.velocity = pos;
     }
 
     // スピードの設定
     public void SetSpeed (float moveSpeed) {
-        this.speed = moveSpeed;
+        this.stageSpeed = moveSpeed;
     }
 }

@@ -7,7 +7,7 @@ public class BulletMove : MonoBehaviour {
     private Transform parent;
     private Rigidbody rigidbody;
     private Vector3 newPos;
-    private float speed = 0;
+    private float stageSpeed;   // 弾がステージに追従する速度
 
     // Start is called before the first frame update
     void Start () {
@@ -25,7 +25,7 @@ public class BulletMove : MonoBehaviour {
 
     private void ShotMove () {
         Debug.Log ("shot!");
-        newPos.x = speed;
+        newPos.x = stageSpeed;
         newPos.z = 10f;
         //rigidbody.AddForce (pos, ForceMode.VelocityChange);
         rigidbody.velocity = newPos;
@@ -33,7 +33,7 @@ public class BulletMove : MonoBehaviour {
 
     // スピードの設定
     public void SetSpeed (float moveSpeed) {
-        this.speed = moveSpeed;
+        this.stageSpeed = moveSpeed;
     }
 
     public void OnCollisionEnter (Collision other) {
@@ -44,5 +44,4 @@ public class BulletMove : MonoBehaviour {
                 RigidbodyConstraints.FreezePositionY;
         }
     }
-
 }
