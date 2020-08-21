@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Destroy
   - Stage
+  - Bullet
+  - Miss
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - Stage
   - Bullet
   - 
-  - 
+  - Destroy
   - 
   - 
   - 

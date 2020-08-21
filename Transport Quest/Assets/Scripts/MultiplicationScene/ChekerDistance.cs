@@ -20,6 +20,8 @@ public class ChekerDistance : MonoBehaviour {
     private int tokenNumber; // mokyuの数
     [SerializeField] private TextMeshProUGUI tokenNumText; // 数の表示テキスト
 
+    [SerializeField] private IncreaseTimer timer; // 時間判定用
+
     // Start is called before the first frame update
     void Start () {
         chekerMat = chekerObj.GetComponent<Renderer> ();
@@ -28,7 +30,7 @@ public class ChekerDistance : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if (Input.GetKeyDown (KeyCode.Return)) {
+        if (Input.GetKeyDown (KeyCode.Return) && timer.GetTimerFin()) {  // タイマーが終わってなければ
             DistanceComparison ();
             StartCoroutine (PushButtonColorChange ());
         }
@@ -125,5 +127,10 @@ public class ChekerDistance : MonoBehaviour {
 
         // 元の色に戻す
         chekerMat.sharedMaterial = chekerMats[0];
+    }
+
+    // もキュの数を返す
+    public int GetTokenNum () {
+        return tokenNumber;
     }
 }

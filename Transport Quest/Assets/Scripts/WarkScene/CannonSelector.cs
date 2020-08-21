@@ -7,6 +7,7 @@ public class CannonSelector : MonoBehaviour {
     [SerializeField] private List<Transform> selectList; // レーンのリスト
     [SerializeField] private Transform cannonTranseform; // 大砲オブジェクト
     [SerializeField] private GameObject[] bulletPrefabs;
+    [SerializeField] private Transform bulletParent;
     private int selectNumber;
     private Vector3 updatePos; // Updateで更新される大砲のポジション
 
@@ -33,7 +34,7 @@ public class CannonSelector : MonoBehaviour {
     void Update () {
         LaneSelect ();
         CannonMove ();
-        if (Input.GetKey (KeyCode.Space)) {
+        if (Input.GetKeyDown (KeyCode.Space)) {
             StartCoroutine (ShotBullet ());
         }
     }
@@ -52,6 +53,7 @@ public class CannonSelector : MonoBehaviour {
         // 同じInstanceIDだった場合削除する
         int otherID = other.gameObject.GetInstanceID ();
         selectList.RemoveAll (trans => trans.gameObject.GetInstanceID () == otherID);
+        selectNumber -= 1;
     }
 
     // 大砲の移動
@@ -64,8 +66,9 @@ public class CannonSelector : MonoBehaviour {
             SmoothMove ();
         } else if (selectList.Count > 0 && !isChangeRane) { // selectNumが変わらなかった場合の動作
             // Debug.Log ("not change");
-            // 親と子供のx座標を足したものが大砲のx座標系と同じになる
-            float xAxis = nowSelectRane.localPosition.x + nowSelectRane.parent.transform.localPosition.x;
+            Transform colParent = nowSelectRane.parent.transform;
+            // 親と子供のx座標を足したものが大砲のx座標系と同じになる  StabeChip + Rane + コライダー  
+            float xAxis = nowSelectRane.localPosition.x + colParent.localPosition.x + colParent.transform.parent.localPosition.x;
             updatePos.x = xAxis;
         }
         cannonTranseform.localPosition = updatePos;
@@ -74,11 +77,14 @@ public class CannonSelector : MonoBehaviour {
 
     // スライド移動　終了後にselectNumが変化しない方の移動方式に変える　変更スピードも可変できるといい
     private void SmoothMove () {
-        updatePos.x = Mathf.SmoothDamp (updatePos.x, nowSelectRane.position.x, ref currentVelocity, 0.3f);
+        //updatePos.x = Mathf.SmoothDamp (updatePos.x, nowSelectRane.position.x, ref currentVelocity, 0.3f);
 
-        if (Mathf.Abs (updatePos.x - nowSelectRane.position.x) <= 0.3f) { // スムーズ移動を止める判定(距離)
+        if (Mathf.Abs (updatePos.x - nowSelectRane.position.x) <= 0.1f) { // スムーズ移動を止める判定(距離)
             isChangeRane = false;
+            return;
         }
+
+        updatePos.x = Mathf.MoveTowards (updatePos.x, nowSelectRane.position.x, stageSpeed * 0.3f);
     }
 
     // レーン番号の変更操作
@@ -100,20 +106,28 @@ public class CannonSelector : MonoBehaviour {
     private IEnumerator ShotBullet () {
         if (!isShot && !isChangeRane) { // 移動中は打てない
             isShot = true;
-            GameObject newBullet = Instantiate (bulletPrefabs[0], nowSelectRane.position, Quaternion.identity, nowSelectRane.parent);
+            GameObject newBullet = Instantiate (bulletPrefabs[0], nowSelectRane.position, Quaternion.identity, bulletParent);
             BulletMove bullet = newBullet.GetComponent<BulletMove> ();
             bullet.SetSpeed (stageSpeed);
 
             shotSpeed = stageSpeed;
-            if (stageSpeed == 1) {  // 1だと遅すぎるため
+            if (stageSpeed <= 1) { // 1だと遅すぎるため
                 shotSpeed = 2;
             }
-            yield return new WaitForSeconds (0.8f / (shotSpeed * 0.8f)); // ステージ速度によって連射速度を早くする
+            yield return new WaitForSeconds (0.8f / (shotSpeed)); // ステージ速度によって連射速度を早くする
             isShot = false;
         }
     }
 
     public void SetSpeed (float speed) {
         this.stageSpeed = speed;
+    }
+
+    // 生成されている全ての弾丸の速度変更
+    public void SetAllBulletSpeed () {
+        for (int i = 0; i < bulletParent.childCount; i++) {
+            BulletMove bullet = bulletParent.GetChild (i).GetComponent<BulletMove> ();
+            bullet.SetSpeed (stageSpeed);
+        }
     }
 }

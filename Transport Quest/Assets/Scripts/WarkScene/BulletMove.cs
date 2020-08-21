@@ -24,7 +24,7 @@ public class BulletMove : MonoBehaviour {
     }
 
     private void ShotMove () {
-        Debug.Log ("shot!");
+        //Debug.Log ("shot!");
         newPos.x = stageSpeed;
         newPos.z = 10f;
         //rigidbody.AddForce (pos, ForceMode.VelocityChange);

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ScoreControler : MonoBehaviour {
 
-    [SerializeField] private CannonSelector selector; // 速度調整のため
+    [SerializeField] private CannonSelector cannonSelector; // 速度調整のため
     [SerializeField] private StageGenerator stageGenerator; // 速度調整のため
     [SerializeField] private float stageSpeed; // ステージの速度
     private float prevSpeed; // 変更前の速度
@@ -36,7 +36,8 @@ public class ScoreControler : MonoBehaviour {
     // スピードの変更があったことを通知
     private void AllSpeedSet () {
         // 大砲側の速度設定
-        selector.SetSpeed (stageSpeed);
+        cannonSelector.SetSpeed (stageSpeed);
+        cannonSelector.SetAllBulletSpeed ();
         // ステージ側の速度設定
         stageGenerator.SetSpeed (stageSpeed);
         stageGenerator.ChangeStageSpeed ();
@@ -57,10 +58,10 @@ public class ScoreControler : MonoBehaviour {
         while (true) {
             yield return new WaitForSeconds (30f);
 
-            stageSpeed += 1;
+            stageSpeed += 0.5f;
             AllSpeedSet ();
 
-            if (stageSpeed == 7) {
+            if (stageSpeed == 3.5f) {
                 Debug.Log ("Max Speed");
                 speedUpText.text = "Max Speed!";
                 StartCoroutine (FlashText (true));

@@ -23,10 +23,23 @@ public class StageGenerator : MonoBehaviour {
 
     // ステージ生成
     private void Generate () {
-        if (stageList.Last ().transform.position.x >= -30) {
+        if (stageList.Last ().transform.position.x >= -30) { // 最後に生成されたステージが-30を切ったら新しいものを生成
+            int selectStage = Random.Range (0, stagePrefabs.Length);
+            //Debug.Log ("rand:" + selectStage);
+
             // 生成
-            GameObject instanceObj = Instantiate (stagePrefabs[0], new Vector3 (0, 10, 0), Quaternion.identity, stageParent.transform);
-            instanceObj.transform.localPosition = new Vector3 (-40, 7, 0);
+            GameObject instanceObj = Instantiate (stagePrefabs[selectStage], new Vector3 (0, 10, 0), Quaternion.identity, stageParent.transform);
+            Vector3 lastPos = stageList.Last ().transform.localPosition;
+            lastPos.x -= 10;
+
+            if (selectStage <= 3) {
+                lastPos.z = -1;
+            } else if (selectStage >= 9) {
+                lastPos.z = 1;
+            } else {
+                lastPos.z = 0;
+            }
+            instanceObj.transform.localPosition = lastPos;
 
             // 速度設定など
             StageControler ctl = instanceObj.GetComponent<StageControler> ();

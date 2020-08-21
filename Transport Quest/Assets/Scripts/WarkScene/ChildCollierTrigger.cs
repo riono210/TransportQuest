@@ -13,6 +13,8 @@ public class ChildCollierTrigger : MonoBehaviour {
             // hitするのは地面自体なのでその親を投げる
             SendInstanceID (other.transform.parent.gameObject);
             Destroy (other.transform.parent.gameObject);
+        } else if (other.gameObject.tag == "Bullet") {
+            Destroy (other.gameObject);
         }
     }
 
