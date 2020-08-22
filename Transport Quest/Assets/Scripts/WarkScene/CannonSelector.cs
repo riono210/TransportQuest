@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CannonSelector : MonoBehaviour {
 
     [SerializeField] private List<Transform> selectList; // レーンのリスト
     [SerializeField] private Transform cannonTranseform; // 大砲オブジェクト
-    [SerializeField] private GameObject[] bulletPrefabs;
+    [SerializeField] private GameObject[] bulletPrefabs; // 弾のプレファブリスト
     [SerializeField] private Transform bulletParent;
     private int selectNumber;
     private Vector3 updatePos; // Updateで更新される大砲のポジション
@@ -19,6 +20,12 @@ public class CannonSelector : MonoBehaviour {
 
     private float stageSpeed; // 選択するスピード
     private float shotSpeed; // 発射速度
+
+    private int tokenNum; // もキュの数
+    [SerializeField] private TextMeshProUGUI tokenNumText; // 表示テキスト
+
+    [SerializeField] private AudioClip clip; //SE
+    [SerializeField] private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start () {
@@ -33,10 +40,13 @@ public class CannonSelector : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         LaneSelect ();
-        CannonMove ();
-        if (Input.GetKeyDown (KeyCode.Space)) {
+        if (selectList.Count > 0) { // エラー回避リストが1以上の時移動可能
+            CannonMove ();
+        }
+        if (Input.GetKey (KeyCode.Space)) {
             StartCoroutine (ShotBullet ());
         }
+        ShowTokenNumber ();
     }
 
     // 範囲内に入ったらリストに追加する
@@ -104,11 +114,14 @@ public class CannonSelector : MonoBehaviour {
 
     // 弾丸を打つ
     private IEnumerator ShotBullet () {
-        if (!isShot && !isChangeRane) { // 移動中は打てない
+        if (!isShot && !isChangeRane && tokenNum > 0) { // 移動中は打てない 残弾が残っていたら
+            tokenNum -= 1;
             isShot = true;
-            GameObject newBullet = Instantiate (bulletPrefabs[0], nowSelectRane.position, Quaternion.identity, bulletParent);
+            int rundomSelect = Random.Range (0, 5); // ランダムな弾を生成
+            GameObject newBullet = Instantiate (bulletPrefabs[rundomSelect], nowSelectRane.position, Quaternion.identity, bulletParent);
             BulletMove bullet = newBullet.GetComponent<BulletMove> ();
             bullet.SetSpeed (stageSpeed);
+            audioSource.PlayOneShot (clip); // SEを流す
 
             shotSpeed = stageSpeed;
             if (stageSpeed <= 1) { // 1だと遅すぎるため
@@ -117,6 +130,17 @@ public class CannonSelector : MonoBehaviour {
             yield return new WaitForSeconds (0.8f / (shotSpeed)); // ステージ速度によって連射速度を早くする
             isShot = false;
         }
+    }
+
+    // もキュの数表示
+    private void ShowTokenNumber () {
+        //Debug.Log ("token: " + tokenNumber);
+        tokenNumText.text = $"{tokenNum} たい";
+    }
+
+    public void SetTokenNum (int tokenNumber) {
+        Debug.Log ("token:" + tokenNumber);
+        this.tokenNum = tokenNumber;
     }
 
     public void SetSpeed (float speed) {
@@ -129,5 +153,10 @@ public class CannonSelector : MonoBehaviour {
             BulletMove bullet = bulletParent.GetChild (i).GetComponent<BulletMove> ();
             bullet.SetSpeed (stageSpeed);
         }
+    }
+
+    // 大砲SEの設定
+    public void SetSEVol (float value) {
+        audioSource.volume = value;
     }
 }

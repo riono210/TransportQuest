@@ -7,6 +7,7 @@ public class ScoreControler : MonoBehaviour {
 
     [SerializeField] private CannonSelector cannonSelector; // 速度調整のため
     [SerializeField] private StageGenerator stageGenerator; // 速度調整のため
+    [SerializeField] private CharactorControler charactor; // アニメーションの速度
     [SerializeField] private float stageSpeed; // ステージの速度
     private float prevSpeed; // 変更前の速度
 
@@ -15,10 +16,6 @@ public class ScoreControler : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI scoreText; // スコアのテキスト
     [SerializeField] private GameObject speedUpObj; // スピードアップオブジェクト
     private TextMeshProUGUI speedUpText; // スピードアップの表示テキスト
-
-    // void Awake () {
-
-    // }
 
     // Start is called before the first frame update
     void Start () {
@@ -31,6 +28,7 @@ public class ScoreControler : MonoBehaviour {
         AllSpeedSet (); // スピードセット
         StartCoroutine (AddScore ()); // スコア加点
         StartCoroutine (SpeedUp ()); // スピードアップ
+        //Debug.Log ("teststart");
     }
 
     // スピードの変更があったことを通知
@@ -42,6 +40,11 @@ public class ScoreControler : MonoBehaviour {
         stageGenerator.SetSpeed (stageSpeed);
         stageGenerator.ChangeStageSpeed ();
         prevSpeed = stageSpeed;
+
+        // アニメーションの速度
+        if (stageSpeed != 0) {
+            charactor.AnimationSpeedChange (stageSpeed);
+        }
     }
 
     // スコアを足す
@@ -50,18 +53,19 @@ public class ScoreControler : MonoBehaviour {
             scorePoint += 1;
             scoreText.text = $"{scorePoint} m";
 
+            //Debug.Log ("test: " + stageSpeed);
             yield return new WaitForSeconds (1 / stageSpeed);
         }
     }
 
     private IEnumerator SpeedUp () {
-        while (true) {
+        while (!isStop) {
             yield return new WaitForSeconds (30f);
 
             stageSpeed += 0.5f;
             AllSpeedSet ();
 
-            if (stageSpeed == 3.5f) {
+            if (stageSpeed == 4f) {
                 Debug.Log ("Max Speed");
                 speedUpText.text = "Max Speed!";
                 StartCoroutine (FlashText (true));
@@ -96,5 +100,20 @@ public class ScoreControler : MonoBehaviour {
         } else {
             speedUpObj.SetActive (false);
         }
+    }
+
+    // スピード変更
+    public void SetStageSpeed (float speed) {
+        this.stageSpeed = speed;
+        AllSpeedSet ();
+    }
+
+    // スコアを渡す
+    public int GetScore () {
+        return scorePoint;
+    }
+
+    public void SetIsStop (bool flag) {
+        this.isStop = flag;
     }
 }

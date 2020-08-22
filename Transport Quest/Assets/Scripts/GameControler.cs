@@ -20,33 +20,52 @@ public class GameControler : MonoBehaviour {
     [SerializeField] private Animation cameraAim;
     [SerializeField] private AnimationClip[] animations;
 
+    [SerializeField] private CannonSelector cannon; // もキュの数渡し
+    [SerializeField] private CharactorControler character; // 終了判定とアニメーション
+
+    [SerializeField] private GameObject gameOverUI; // ゲームオーバー時のUI
+
+    [SerializeField] private AudioClip[] bgms; //BGM
+    private AudioSource audioSource;
+    private float seVolume = 1; // seの大きさ
+
     private int tokenNum = 0; // もキュの数
-    private bool isGameOver; // ゲーム終了判定
+    //private bool isGameOver; // ゲーム終了判定
+    private bool isWalk; // 散歩シーンか
+
+    private bool isGameOverOnce; // ゲームオーバー出現フラグ
 
     // Start is called before the first frame update
     void Start () {
         SetUp ();
-        StartCoroutine (WaitCamMove ());
+        //StartCoroutine (WaitCamMove ());
     }
 
     // Update is called once per frame
     void Update () {
-
+        if (isWalk) {
+            Gameover ();
+        }
     }
 
     // ゲームスタートボタンおした時
-    private void StartMultipul () {
+    public void StartMultipul () {
         StartCoroutine (WaitCamMove ());
+        demoStageObjs[1].SetActive (false);
     }
 
     // セットアップ
     private void SetUp () {
-        isGameOver = false;
+        audioSource = GetComponent<AudioSource> ();
+        isGameOverOnce = false;
+        isWalk = false;
         foreach (var value in walkingStageObjs) { // 散歩ステージの非表示
             value.SetActive (false);
         }
-        demoStageObjs[0].SetActive (true); // デモステージを表示
-        // デモのUIを表示 追加しろ
+
+        foreach (var value in demoStageObjs) { // でもステージの表示
+            value.SetActive (true);
+        }
         multipulRoomObjs[0].SetActive (true); // 増殖ステージを表示
 
         multipulRoomObjs[1].SetActive (false); // UI非表示
@@ -58,8 +77,24 @@ public class GameControler : MonoBehaviour {
         }
 
         // 散歩ステージのコンポーネントのoff
+        foreach (var value in walkComponent) {
+            value.enabled = false;
+        }
+
+        // ゲームオーバーUIを非表示
+        gameOverUI.SetActive (false);
 
         multipulStartText.SetActive (false); // 増殖ステージのスタートテキストoff
+        // タイトルBGM
+        BGMSet (0);
+    }
+
+    // BGMのセットと再生
+    private void BGMSet (int index) {
+        audioSource.Stop ();
+        audioSource.clip = bgms[index];
+        audioSource.Play ();
+
     }
 
     // ゲーム開始のカメラ移動
@@ -80,17 +115,25 @@ public class GameControler : MonoBehaviour {
         multipulStartText.SetActive (true);
         // ピピーSE
 
+        // ちょっと待つ？
+
+        // 増殖BGM
+        BGMSet (1);
+
         yield return new WaitForSeconds (2f);
 
         multipulStartText.SetActive (false);
         // 回転開始
         foreach (var value in multipulComponent) {
             value.enabled = true;
+            if (value.GetType () == typeof (ChekerDistance)) { // SE音量を設定
+                value.GetComponent<ChekerDistance> ().SetSEVol (seVolume);
+            }
         }
     }
 
-    // タイマー側で呼び出す  増加シーン終了
-    public IEnumerator StartWalk () {
+    //  増加シーン終了 移動
+    private IEnumerator MoveWalkStage () {
         // テキスト表示
         multipulStartText.GetComponent<TextMeshProUGUI> ().text = "しゅうーりょう!";
         multipulStartText.SetActive (true);
@@ -112,14 +155,38 @@ public class GameControler : MonoBehaviour {
         // 増殖シーンoff
         multipulRoomObjs[0].SetActive (false);
 
+        // もキュ渡し
+        cannon.SetTokenNum (tokenNum);
         // UIの表示
         walkingStageObjs[1].SetActive (true);
-        // スタート表示
+
+        // 散歩ステージスタート表示
         walkStartText.GetComponent<TextMeshProUGUI> ().text = "すたーと!";
         walkStartText.SetActive (true);
 
-        // 散歩ステージスクリプト開始
+        // 散歩ステージBGM
+        BGMSet (2);
 
+        yield return new WaitForSeconds (2f);
+        // スタート非表示
+        walkStartText.SetActive (false);
+
+        // 散歩ステージスクリプト開始
+        foreach (var value in walkComponent) {
+            value.enabled = true;
+            if (value.GetType () == typeof (CannonSelector)) { // SE音量を設定
+                value.GetComponent<CannonSelector> ().SetSEVol (seVolume * 0.5f);
+            }
+        }
+
+        // 判定開始
+        isWalk = true;
+
+    }
+
+    // タイマー側で呼び出す 
+    public void StartWalk () {
+        StartCoroutine (MoveWalkStage ());
     }
 
     // スタート時のカメラ移動
@@ -154,13 +221,37 @@ public class GameControler : MonoBehaviour {
         cameras[0].Priority = 15;
     }
 
+    // Unityちゃんがmissを踏んだ場合
+    public void Gameover () {
+        if (character.GetIsGamoOver () && !isGameOverOnce) {
+            isGameOverOnce = true;
+            // ゲームオーバーBGM
+            BGMSet (3);
+
+            // unitychannアニメーション
+            character.GameoverAnimation ();
+            // 散歩ステージスクリプト終了
+            walkComponent[1].GetComponent<ScoreControler> ().SetIsStop (true);
+            walkComponent[1].GetComponent<ScoreControler> ().SetStageSpeed (0f);
+
+            // ゲームオーバーUIを表示
+            gameOverUI.SetActive (true);
+            Debug.Log ("gameover");
+        }
+    }
+
     // もキュの数セット
-    private void SetTokenNum (int num) {
+    public void SetTokenNum (int num) {
         this.tokenNum = num;
     }
 
-    private void SetIsGameOver (bool flag) {
-        this.isGameOver = flag;
+    // BGMの音量変更
+    public void SetSoundVolume (float value) {
+        audioSource.volume = value;
     }
 
+    // SEの音量セット
+    public void SetSEVolume (float value) {
+        this.seVolume = value;
+    }
 }
