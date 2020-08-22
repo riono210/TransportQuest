@@ -11,9 +11,11 @@ public class GameControler : MonoBehaviour {
     [SerializeField] private GameObject[] demoStageObjs;
 
     [SerializeField] private Behaviour[] multipulComponent; // 増殖シーンのスクリプト
+    [SerializeField] private GameObject multipulHowtoText; // 説明
     [SerializeField] private GameObject multipulStartText; // スタートテキスト
 
     [SerializeField] private Behaviour[] walkComponent; // 散歩シーンのスクリプト
+    [SerializeField] private GameObject walkHowtoText; // 説明
     [SerializeField] private GameObject walkStartText; // スタートテキスト
 
     [SerializeField] private CinemachineVirtualCamera[] cameras; // バーチャルカメラ
@@ -85,6 +87,7 @@ public class GameControler : MonoBehaviour {
         gameOverUI.SetActive (false);
 
         multipulStartText.SetActive (false); // 増殖ステージのスタートテキストoff
+        multipulHowtoText.SetActive (false); // 説明テキストoff
         // タイトルBGM
         BGMSet (0);
     }
@@ -109,18 +112,19 @@ public class GameControler : MonoBehaviour {
 
         // UI表示
         multipulRoomObjs[1].SetActive (true);
-        yield return new WaitForSeconds (1f);
+        // 操作説明
+        multipulHowtoText.SetActive (true);
+        yield return new WaitForSeconds (3f);
+        multipulHowtoText.SetActive (false);
+
         // スタートテキスト
         multipulStartText.GetComponent<TextMeshProUGUI> ().text = "すたーと!";
         multipulStartText.SetActive (true);
-        // ピピーSE
-
-        // ちょっと待つ？
 
         // 増殖BGM
         BGMSet (1);
 
-        yield return new WaitForSeconds (2f);
+        yield return new WaitForSeconds (1.5f);
 
         multipulStartText.SetActive (false);
         // 回転開始
@@ -159,6 +163,9 @@ public class GameControler : MonoBehaviour {
         cannon.SetTokenNum (tokenNum);
         // UIの表示
         walkingStageObjs[1].SetActive (true);
+        walkHowtoText.SetActive (true);  // 説明の表示
+        yield return new WaitForSeconds (3f);
+        walkHowtoText.SetActive (false);
 
         // 散歩ステージスタート表示
         walkStartText.GetComponent<TextMeshProUGUI> ().text = "すたーと!";
@@ -175,7 +182,7 @@ public class GameControler : MonoBehaviour {
         foreach (var value in walkComponent) {
             value.enabled = true;
             if (value.GetType () == typeof (CannonSelector)) { // SE音量を設定
-                value.GetComponent<CannonSelector> ().SetSEVol (seVolume * 0.5f);
+                value.GetComponent<CannonSelector> ().SetSEVol (seVolume * 0.3f);
             }
         }
 
